@@ -8,5 +8,13 @@ import java.util.UUID;
 public interface PizzaService {
     Pizza getPizzaById(UUID id);
 
-    List<Pizza> listPizza();
+    List<Pizza> getPizzaList();
+
+    Pizza saveNewPizza(Pizza pizza);
+
+    void updatePizzaById(UUID id, Pizza pizza);
+
+    void deletePizzaById(UUID id);
+
+    void patchPizzaById(UUID id, Pizza pizza);
 }

@@ -4,6 +4,7 @@ import com.onlinepizza.models.Pizza;
 import com.onlinepizza.models.PizzaStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,11 +12,11 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class PizzaServiceImpl implements PizzaService{
+public class PizzaMapService implements PizzaService{
 
     private Map<UUID, Pizza> pizzaMap;
 
-    public PizzaServiceImpl() {
+    public PizzaMapService() {
         this.pizzaMap = new HashMap<>();
 
         Pizza pizza1 = Pizza.builder()
@@ -72,8 +73,74 @@ public class PizzaServiceImpl implements PizzaService{
         pizzaMap.put(pizza4.getId(), pizza4);
     }
 
-    public List<Pizza> listPizza(){
+    @Override
+    public List<Pizza> getPizzaList(){
         return new ArrayList<>(pizzaMap.values());
+    }
+
+    @Override
+    public Pizza saveNewPizza(Pizza pizza) {
+        log.debug(pizza.getName());
+        Pizza savedPizza = Pizza.builder()
+                .id(UUID.randomUUID())
+                .created(LocalDateTime.now())
+                .lastUpdated(LocalDateTime.now())
+                .name(pizza.getName())
+                .style(pizza.getStyle())
+                .quantityAvailable(pizza.getQuantityAvailable())
+                .upc(pizza.getUpc())
+                .price(pizza.getPrice())
+                .version(pizza.getVersion())
+                .build();
+
+        pizzaMap.put(savedPizza.getId(), savedPizza);
+        return savedPizza;
+    }
+
+    @Override
+    public void updatePizzaById(UUID id, Pizza pizza) {
+        Pizza updatedPizza = pizzaMap.get(id);
+        updatedPizza.setName(pizza.getName());
+        updatedPizza.setStyle(pizza.getStyle());
+        updatedPizza.setPrice(pizza.getPrice());
+        updatedPizza.setUpc(pizza.getUpc());
+        updatedPizza.setQuantityAvailable(pizza.getQuantityAvailable());
+        updatedPizza.setLastUpdated(LocalDateTime.now());
+        updatedPizza.setVersion(updatedPizza.getVersion() + 1);
+
+        pizzaMap.put(updatedPizza.getId(), updatedPizza);
+    }
+
+    @Override
+    public void deletePizzaById(UUID id) {
+        pizzaMap.remove(id);
+    }
+
+    @Override
+    public void patchPizzaById(UUID id, Pizza pizza) {
+        Pizza patchedPizza = pizzaMap.get(id);
+
+        if (StringUtils.hasText(pizza.getName())){
+            patchedPizza.setName(pizza.getName());
+        }
+
+        if (pizza.getStyle() != null) {
+            patchedPizza.setStyle(pizza.getStyle());
+        }
+
+        if (pizza.getPrice() != null) {
+            patchedPizza.setPrice(pizza.getPrice());
+        }
+
+        if (pizza.getQuantityAvailable() != null) {
+            patchedPizza.setQuantityAvailable(pizza.getQuantityAvailable());
+        }
+
+        if (StringUtils.hasText(pizza.getUpc())){
+            patchedPizza.setUpc(pizza.getUpc());
+        }
+
+
     }
 
     @Override
