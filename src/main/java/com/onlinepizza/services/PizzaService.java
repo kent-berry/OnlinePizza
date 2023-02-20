@@ -1,20 +1,21 @@
 package com.onlinepizza.services;
 
-import com.onlinepizza.models.Pizza;
+import com.onlinepizza.models.PizzaDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PizzaService {
-    Pizza getPizzaById(UUID id);
+    Optional<PizzaDTO> getPizzaById(UUID id);
 
-    List<Pizza> getPizzaList();
+    List<PizzaDTO> getPizzaList();
 
-    Pizza saveNewPizza(Pizza pizza);
+    PizzaDTO saveNewPizza(PizzaDTO pizza);
 
-    void updatePizzaById(UUID id, Pizza pizza);
+    void updatePizzaById(UUID id, PizzaDTO pizza);
 
     void deletePizzaById(UUID id);
 
-    void patchPizzaById(UUID id, Pizza pizza);
+    void patchPizzaById(UUID id, PizzaDTO pizza);
 }

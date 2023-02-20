@@ -1,7 +1,7 @@
 package com.onlinepizza.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onlinepizza.models.Pizza;
+import com.onlinepizza.models.PizzaDTO;
 import com.onlinepizza.services.PizzaMapService;
 import com.onlinepizza.services.PizzaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.onlinepizza.controllers.PizzaController.PIZZA_PATH;
@@ -48,17 +49,26 @@ class PizzaControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Pizza> pizzaArgumentCaptor;
+    ArgumentCaptor<PizzaDTO> pizzaArgumentCaptor;
 
     PizzaMapService pizzaMapService = new PizzaMapService();
 
-    Pizza testPizza;
+    PizzaDTO testPizza;
+
+    @Test
+    void getPizzaByIdNotFound() throws Exception {
+
+        given(pizzaService.getPizzaById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(get(PIZZA_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     void getPizzaById() throws Exception {
-        Pizza testPizza = pizzaMapService.getPizzaList().get(0);
+        PizzaDTO testPizza = pizzaMapService.getPizzaList().get(0);
 
-        given(pizzaService.getPizzaById(testPizza.getId())).willReturn(testPizza);
+        given(pizzaService.getPizzaById(testPizza.getId())).willReturn(Optional.of(testPizza));
 
         mockMvc.perform(get(PIZZA_PATH + "/" + testPizza.getId())
                 .accept(MediaType.APPLICATION_JSON))
@@ -110,7 +120,7 @@ class PizzaControllerTest {
                 .content(objectMapper.writeValueAsString(testPizza)))
                 .andExpect(status().isNoContent());
 
-        verify(pizzaService).updatePizzaById(uuidArgumentCaptor.capture(), any(Pizza.class));
+        verify(pizzaService).updatePizzaById(uuidArgumentCaptor.capture(), any(PizzaDTO.class));
 
         assertThat(testPizza.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
@@ -120,7 +130,7 @@ class PizzaControllerTest {
         testPizza.setId(null);
         testPizza.setVersion(null);
 
-        given(pizzaService.saveNewPizza(any(Pizza.class))).willReturn(pizzaMapService.getPizzaList().get(1));
+        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList().get(1));
 
         mockMvc.perform(post(PIZZA_PATH)
                 .accept(MediaType.APPLICATION_JSON)

@@ -1,7 +1,7 @@
 package com.onlinepizza.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onlinepizza.models.Customer;
+import com.onlinepizza.models.CustomerDTO;
 import com.onlinepizza.services.CustomerMapService;
 import com.onlinepizza.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.onlinepizza.controllers.CustomerController.CUSTOMER_PATH;
@@ -44,11 +45,11 @@ class CustomerControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Customer> customerArgumentCaptor;
+    ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
     CustomerMapService customerMapService = new CustomerMapService();
 
-    Customer testCustomer;
+    CustomerDTO testCustomer;
 
     @BeforeEach
     void setUp() {
@@ -92,7 +93,7 @@ class CustomerControllerTest {
                         .content(objectMapper.writeValueAsString(testCustomer)))
                 .andExpect(status().isNoContent());
 
-        verify(customerService).updateCustomerById(uuidArgumentCaptor.capture(), any(Customer.class));
+        verify(customerService).updateCustomerById(uuidArgumentCaptor.capture(), any(CustomerDTO.class));
 
         assertThat(testCustomer.getId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
@@ -102,7 +103,7 @@ class CustomerControllerTest {
         testCustomer.setId(null);
         testCustomer.setVersion(null);
 
-        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(customerMapService.getCustomerList().get(1));
+        given(customerService.saveNewCustomer(any(CustomerDTO.class))).willReturn(customerMapService.getCustomerList().get(1));
 
         mockMvc.perform(post(CUSTOMER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
@@ -123,8 +124,16 @@ class CustomerControllerTest {
     }
 
     @Test
+    void getCustomerByIdNotFound() throws Exception {
+        given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(get(CUSTOMER_PATH_ID, UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void getCustomerById() throws Exception {
-        given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
+        given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get(CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))

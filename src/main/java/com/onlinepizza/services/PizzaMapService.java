@@ -1,6 +1,6 @@
 package com.onlinepizza.services;
 
-import com.onlinepizza.models.Pizza;
+import com.onlinepizza.models.PizzaDTO;
 import com.onlinepizza.models.PizzaStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,12 +14,12 @@ import java.util.*;
 @Service
 public class PizzaMapService implements PizzaService{
 
-    private Map<UUID, Pizza> pizzaMap;
+    private Map<UUID, PizzaDTO> pizzaMap;
 
     public PizzaMapService() {
         this.pizzaMap = new HashMap<>();
 
-        Pizza pizza1 = Pizza.builder()
+        PizzaDTO pizza1 = PizzaDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("Margherita")
@@ -31,7 +31,7 @@ public class PizzaMapService implements PizzaService{
                 .lastUpdated(LocalDateTime.now())
                 .build();
 
-        Pizza pizza2 = Pizza.builder()
+        PizzaDTO pizza2 = PizzaDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("NYC Pepperoni")
@@ -43,7 +43,7 @@ public class PizzaMapService implements PizzaService{
                 .lastUpdated(LocalDateTime.now())
                 .build();
 
-        Pizza pizza3 = Pizza.builder()
+        PizzaDTO pizza3 = PizzaDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("Spicy Sicilian")
@@ -55,7 +55,7 @@ public class PizzaMapService implements PizzaService{
                 .lastUpdated(LocalDateTime.now())
                 .build();
 
-        Pizza pizza4 = Pizza.builder()
+        PizzaDTO pizza4 = PizzaDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .name("More Lasagna Than Pizza")
@@ -74,14 +74,14 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public List<Pizza> getPizzaList(){
+    public List<PizzaDTO> getPizzaList(){
         return new ArrayList<>(pizzaMap.values());
     }
 
     @Override
-    public Pizza saveNewPizza(Pizza pizza) {
+    public PizzaDTO saveNewPizza(PizzaDTO pizza) {
         log.debug(pizza.getName());
-        Pizza savedPizza = Pizza.builder()
+        PizzaDTO savedPizza = PizzaDTO.builder()
                 .id(UUID.randomUUID())
                 .created(LocalDateTime.now())
                 .lastUpdated(LocalDateTime.now())
@@ -98,8 +98,8 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public void updatePizzaById(UUID id, Pizza pizza) {
-        Pizza updatedPizza = pizzaMap.get(id);
+    public void updatePizzaById(UUID id, PizzaDTO pizza) {
+        PizzaDTO updatedPizza = pizzaMap.get(id);
         updatedPizza.setName(pizza.getName());
         updatedPizza.setStyle(pizza.getStyle());
         updatedPizza.setPrice(pizza.getPrice());
@@ -117,8 +117,8 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public void patchPizzaById(UUID id, Pizza pizza) {
-        Pizza patchedPizza = pizzaMap.get(id);
+    public void patchPizzaById(UUID id, PizzaDTO pizza) {
+        PizzaDTO patchedPizza = pizzaMap.get(id);
 
         if (StringUtils.hasText(pizza.getName())){
             patchedPizza.setName(pizza.getName());
@@ -144,7 +144,7 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public Pizza getPizzaById(UUID id) {
-        return pizzaMap.get(id);
+    public Optional<PizzaDTO> getPizzaById(UUID id) {
+        return Optional.of(pizzaMap.get(id));
     }
 }

@@ -1,6 +1,7 @@
 package com.onlinepizza.controllers;
 
-import com.onlinepizza.models.Customer;
+import com.onlinepizza.exceptions.NotFoundException;
+import com.onlinepizza.models.CustomerDTO;
 import com.onlinepizza.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PatchMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity patchCustomerById(@PathVariable("id") UUID id, @RequestBody Customer customer){
+    public ResponseEntity patchCustomerById(@PathVariable("id") UUID id, @RequestBody CustomerDTO customer){
 
         customerService.patchCustomerById(id, customer);
 
@@ -37,7 +38,7 @@ public class CustomerController {
     }
 
     @PutMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity updateCustomerById(@PathVariable("id") UUID id, @RequestBody Customer customer){
+    public ResponseEntity updateCustomerById(@PathVariable("id") UUID id, @RequestBody CustomerDTO customer){
 
         customerService.updateCustomerById(id, customer);
 
@@ -45,8 +46,8 @@ public class CustomerController {
     }
 
     @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity handlePost(@RequestBody Customer customer){
-        Customer savedCustomer = customerService.saveNewCustomer(customer);
+    public ResponseEntity handlePost(@RequestBody CustomerDTO customer){
+        CustomerDTO savedCustomer = customerService.saveNewCustomer(customer);
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -56,12 +57,12 @@ public class CustomerController {
     }
 
     @GetMapping(CUSTOMER_PATH)
-    public List<Customer> getCustomerList(){
+    public List<CustomerDTO> getCustomerList(){
         return customerService.getCustomerList();
     }
 
     @GetMapping(CUSTOMER_PATH_ID)
-    public Customer getCustomerById(@PathVariable UUID id){
-        return customerService.getCustomerById(id);
+    public CustomerDTO getCustomerById(@PathVariable UUID id){
+        return customerService.getCustomerById(id).orElseThrow(NotFoundException::new);
     }
 }

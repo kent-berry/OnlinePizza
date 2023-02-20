@@ -1,6 +1,7 @@
 package com.onlinepizza.controllers;
 
-import com.onlinepizza.models.Pizza;
+import com.onlinepizza.exceptions.NotFoundException;
+import com.onlinepizza.models.PizzaDTO;
 import com.onlinepizza.services.PizzaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class PizzaController {
     private final PizzaService pizzaService;
 
     @PatchMapping(PIZZA_PATH_ID)
-    public ResponseEntity patchPizzaById(@PathVariable("id") UUID id, @RequestBody Pizza pizza){
+    public ResponseEntity patchPizzaById(@PathVariable("id") UUID id, @RequestBody PizzaDTO pizza){
 
         pizzaService.patchPizzaById(id, pizza);
 
@@ -39,7 +40,7 @@ public class PizzaController {
     }
 
     @PutMapping(PIZZA_PATH_ID)
-    public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @RequestBody Pizza pizza){
+    public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @RequestBody PizzaDTO pizza){
 
         pizzaService.updatePizzaById(id, pizza);
 
@@ -47,8 +48,8 @@ public class PizzaController {
     }
 
     @PostMapping(PIZZA_PATH)
-    public ResponseEntity handlePost(@RequestBody Pizza pizza){
-        Pizza savedPizza = pizzaService.saveNewPizza(pizza);
+    public ResponseEntity handlePost(@RequestBody PizzaDTO pizza){
+        PizzaDTO savedPizza = pizzaService.saveNewPizza(pizza);
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -58,13 +59,13 @@ public class PizzaController {
     }
 
     @GetMapping(PIZZA_PATH)
-    public List<Pizza> getPizzaList(){
+    public List<PizzaDTO> getPizzaList(){
         log.debug("test123");
         return pizzaService.getPizzaList();
     }
 
     @GetMapping(PIZZA_PATH_ID)
-    public Pizza getPizzaById(@PathVariable UUID id){
-        return pizzaService.getPizzaById(id);
+    public PizzaDTO getPizzaById(@PathVariable UUID id){
+        return pizzaService.getPizzaById(id).orElseThrow(NotFoundException::new);
     }
 }
