@@ -15,12 +15,14 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/pizza")
 public class PizzaController {
+
+    public static final String PIZZA_PATH = "/api/v1/pizza";
+    public static final String PIZZA_PATH_ID = PIZZA_PATH + "/{id}";
 
     private final PizzaService pizzaService;
 
-    @PatchMapping("/{id}")
+    @PatchMapping(PIZZA_PATH_ID)
     public ResponseEntity patchPizzaById(@PathVariable("id") UUID id, @RequestBody Pizza pizza){
 
         pizzaService.patchPizzaById(id, pizza);
@@ -28,7 +30,7 @@ public class PizzaController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(PIZZA_PATH_ID)
     public ResponseEntity deleteCustomerById(@PathVariable("id") UUID id){
 
         pizzaService.deletePizzaById(id);
@@ -36,7 +38,7 @@ public class PizzaController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(PIZZA_PATH_ID)
     public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @RequestBody Pizza pizza){
 
         pizzaService.updatePizzaById(id, pizza);
@@ -44,7 +46,7 @@ public class PizzaController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping
+    @PostMapping(PIZZA_PATH)
     public ResponseEntity handlePost(@RequestBody Pizza pizza){
         Pizza savedPizza = pizzaService.saveNewPizza(pizza);
 
@@ -55,13 +57,13 @@ public class PizzaController {
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping(PIZZA_PATH)
     public List<Pizza> getPizzaList(){
         log.debug("test123");
         return pizzaService.getPizzaList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(PIZZA_PATH_ID)
     public Pizza getPizzaById(@PathVariable UUID id){
         return pizzaService.getPizzaById(id);
     }
