@@ -106,7 +106,6 @@ public class PizzaMapService implements PizzaService{
         updatedPizza.setUpc(pizza.getUpc());
         updatedPizza.setQuantityAvailable(pizza.getQuantityAvailable());
         updatedPizza.setLastUpdated(LocalDateTime.now());
-        updatedPizza.setVersion(updatedPizza.getVersion() + 1);
 
         pizzaMap.put(updatedPizza.getId(), updatedPizza);
     }

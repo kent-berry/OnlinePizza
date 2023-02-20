@@ -72,7 +72,6 @@ public class CustomerMapService implements CustomerService{
         CustomerDTO updatedCustomer = customerMap.get(id);
         updatedCustomer.setName(customer.getName());
         updatedCustomer.setLastUpdated(LocalDateTime.now());
-        updatedCustomer.setVersion(updatedCustomer.getVersion() + 1);
 
         customerMap.put(updatedCustomer.getId(), updatedCustomer);
     }
