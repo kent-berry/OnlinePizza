@@ -27,7 +27,7 @@ public class BootstrapData implements CommandLineRunner {
     }
 
     private void loadPizzaData() {
-        if (pizzaRepository.count() == 0){
+        if (pizzaRepository.count() == 0) {
             Pizza pizza1 = Pizza.builder()
                     .name("Dollar Pizza")
                     .style(PizzaStyle.NYC)
@@ -96,3 +96,4 @@ public class BootstrapData implements CommandLineRunner {
         }
 
     }
+}
