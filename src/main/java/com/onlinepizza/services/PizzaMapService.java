@@ -98,7 +98,7 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public void updatePizzaById(UUID id, PizzaDTO pizza) {
+    public Optional<PizzaDTO> updatePizzaById(UUID id, PizzaDTO pizza) {
         PizzaDTO updatedPizza = pizzaMap.get(id);
         updatedPizza.setName(pizza.getName());
         updatedPizza.setStyle(pizza.getStyle());
@@ -108,11 +108,16 @@ public class PizzaMapService implements PizzaService{
         updatedPizza.setLastUpdated(LocalDateTime.now());
 
         pizzaMap.put(updatedPizza.getId(), updatedPizza);
+
+        return Optional.of(updatedPizza);
     }
 
     @Override
-    public void deletePizzaById(UUID id) {
+    public Boolean deletePizzaById(UUID id) {
         pizzaMap.remove(id);
+
+        //todo impl logic to return false if not found
+        return true;
     }
 
     @Override

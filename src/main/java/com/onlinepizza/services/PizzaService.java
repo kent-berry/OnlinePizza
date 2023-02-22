@@ -13,9 +13,9 @@ public interface PizzaService {
 
     PizzaDTO saveNewPizza(PizzaDTO pizza);
 
-    void updatePizzaById(UUID id, PizzaDTO pizza);
+    Optional<PizzaDTO> updatePizzaById(UUID id, PizzaDTO pizza);
 
-    void deletePizzaById(UUID id);
+    Boolean deletePizzaById(UUID id);
 
     void patchPizzaById(UUID id, PizzaDTO pizza);
 }

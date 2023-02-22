@@ -102,7 +102,9 @@ class PizzaControllerTest {
     }
 
     @Test
-    void deleteCustomerById() throws Exception {
+    void deletePizzaById() throws Exception {
+        given(pizzaService.deletePizzaById(any())).willReturn(true);
+
         mockMvc.perform(delete(PIZZA_PATH_ID, testPizza.getId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -114,6 +116,8 @@ class PizzaControllerTest {
 
     @Test
     void updatePizzaById() throws Exception {
+        given(pizzaService.updatePizzaById(any(), any())).willReturn(Optional.of(testPizza));
+
         mockMvc.perform(put(PIZZA_PATH_ID, testPizza.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -126,7 +130,7 @@ class PizzaControllerTest {
     }
 
     @Test
-    void handlePost() throws Exception {
+    void saveNewPizza() throws Exception {
         testPizza.setId(null);
         testPizza.setVersion(null);
 

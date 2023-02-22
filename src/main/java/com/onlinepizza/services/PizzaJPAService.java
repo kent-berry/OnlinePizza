@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +23,7 @@ public class PizzaJPAService implements PizzaService{
 
     @Override
     public Optional<PizzaDTO> getPizzaById(UUID id) {
-        return Optional.of(pizzaMapper.pizzaToPizzaDTO(pizzaRepository.findById(id).orElse(null)));
+        return Optional.ofNullable(pizzaMapper.pizzaToPizzaDTO(pizzaRepository.findById(id).orElse(null)));
     }
 
     @Override
@@ -35,17 +36,33 @@ public class PizzaJPAService implements PizzaService{
 
     @Override
     public PizzaDTO saveNewPizza(PizzaDTO pizza) {
-        return null;
+        return pizzaMapper.pizzaToPizzaDTO(pizzaRepository.save(pizzaMapper.pizzaDTOToPizza(pizza)));
     }
 
     @Override
-    public void updatePizzaById(UUID id, PizzaDTO pizza) {
+    public Optional<PizzaDTO> updatePizzaById(UUID id, PizzaDTO pizza) {
+        AtomicReference<Optional<PizzaDTO>> atomicReference = new AtomicReference<>();
 
+        pizzaRepository.findById(id).ifPresentOrElse(foundPizza -> {
+            foundPizza.setName(pizza.getName());
+            foundPizza.setStyle(pizza.getStyle());
+            foundPizza.setUpc(pizza.getUpc());
+            foundPizza.setPrice(pizza.getPrice());
+            atomicReference.set(Optional.of(pizzaMapper.pizzaToPizzaDTO(pizzaRepository.save(foundPizza))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
     @Override
-    public void deletePizzaById(UUID id) {
-
+    public Boolean deletePizzaById(UUID id) {
+        if (pizzaRepository.existsById(id)){
+            pizzaRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override

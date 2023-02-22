@@ -32,9 +32,11 @@ public class PizzaController {
     }
 
     @DeleteMapping(PIZZA_PATH_ID)
-    public ResponseEntity deleteCustomerById(@PathVariable("id") UUID id){
+    public ResponseEntity deletePizzaById(@PathVariable("id") UUID id){
 
-        pizzaService.deletePizzaById(id);
+        if (!pizzaService.deletePizzaById(id)){
+            throw new NotFoundException();
+        };
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -42,13 +44,15 @@ public class PizzaController {
     @PutMapping(PIZZA_PATH_ID)
     public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @RequestBody PizzaDTO pizza){
 
-        pizzaService.updatePizzaById(id, pizza);
+        if(pizzaService.updatePizzaById(id, pizza).isEmpty()){
+            throw new NotFoundException();
+        };
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(PIZZA_PATH)
-    public ResponseEntity handlePost(@RequestBody PizzaDTO pizza){
+    public ResponseEntity saveNewPizza(@RequestBody PizzaDTO pizza){
         PizzaDTO savedPizza = pizzaService.saveNewPizza(pizza);
 
         HttpHeaders headers = new HttpHeaders();

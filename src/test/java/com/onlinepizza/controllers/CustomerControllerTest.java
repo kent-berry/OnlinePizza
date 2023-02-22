@@ -76,6 +76,8 @@ class CustomerControllerTest {
 
     @Test
     void deleteCustomerById() throws Exception {
+        given(customerService.deleteCustomerById(any())).willReturn(true);
+
         mockMvc.perform(delete(CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -87,6 +89,8 @@ class CustomerControllerTest {
 
     @Test
     void updateCustomerById() throws Exception {
+        given(customerService.updateCustomerById(any(), any())).willReturn(Optional.of(testCustomer));
+
         mockMvc.perform(put(CUSTOMER_PATH_ID, testCustomer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,7 +103,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void handlePost() throws Exception {
+    void saveNewCustomer() throws Exception {
         testCustomer.setId(null);
         testCustomer.setVersion(null);
 

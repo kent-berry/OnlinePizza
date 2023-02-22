@@ -68,17 +68,22 @@ public class CustomerMapService implements CustomerService{
     }
 
     @Override
-    public void updateCustomerById(UUID id, CustomerDTO customer) {
+    public Optional<CustomerDTO> updateCustomerById(UUID id, CustomerDTO customer) {
         CustomerDTO updatedCustomer = customerMap.get(id);
         updatedCustomer.setName(customer.getName());
         updatedCustomer.setLastUpdated(LocalDateTime.now());
 
         customerMap.put(updatedCustomer.getId(), updatedCustomer);
+
+        return Optional.of(updatedCustomer);
     }
 
     @Override
-    public void deleteCustomerById(UUID id) {
+    public Boolean deleteCustomerById(UUID id) {
         customerMap.remove(id);
+
+        //todo impl logic to return false if not found
+        return true;
     }
 
     @Override
