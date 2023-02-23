@@ -121,7 +121,7 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public void patchPizzaById(UUID id, PizzaDTO pizza) {
+    public Optional<PizzaDTO> patchPizzaById(UUID id, PizzaDTO pizza) {
         PizzaDTO patchedPizza = pizzaMap.get(id);
 
         if (StringUtils.hasText(pizza.getName())){
@@ -143,8 +143,7 @@ public class PizzaMapService implements PizzaService{
         if (StringUtils.hasText(pizza.getUpc())){
             patchedPizza.setUpc(pizza.getUpc());
         }
-
-
+        return Optional.of(patchedPizza);
     }
 
     @Override

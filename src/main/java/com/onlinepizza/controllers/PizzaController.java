@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class PizzaController {
     }
 
     @PutMapping(PIZZA_PATH_ID)
-    public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @RequestBody PizzaDTO pizza){
+    public ResponseEntity updatePizzaById(@PathVariable("id") UUID id, @Validated @RequestBody PizzaDTO pizza){
 
         if(pizzaService.updatePizzaById(id, pizza).isEmpty()){
             throw new NotFoundException();
@@ -52,7 +53,7 @@ public class PizzaController {
     }
 
     @PostMapping(PIZZA_PATH)
-    public ResponseEntity saveNewPizza(@RequestBody PizzaDTO pizza){
+    public ResponseEntity saveNewPizza(@Validated @RequestBody PizzaDTO pizza){
         PizzaDTO savedPizza = pizzaService.saveNewPizza(pizza);
 
         HttpHeaders headers = new HttpHeaders();

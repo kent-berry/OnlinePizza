@@ -2,6 +2,7 @@ package com.onlinepizza.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlinepizza.models.PizzaDTO;
+import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.services.PizzaMapService;
 import com.onlinepizza.services.PizzaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +57,37 @@ class PizzaControllerTest {
     PizzaMapService pizzaMapService = new PizzaMapService();
 
     PizzaDTO testPizza;
+
+    @Test
+    void updatePizzaBlankName() throws Exception {
+        testPizza.setName("");
+        given(pizzaService.updatePizzaById(any(), any())).willReturn(Optional.of(testPizza));
+
+        MvcResult mvcResult = mockMvc.perform(put(PIZZA_PATH_ID, testPizza.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPizza)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(1))).andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    void createPizzaNullName() throws Exception {
+        PizzaDTO pizzaDTO = PizzaDTO.builder().style(PizzaStyle.SICILIAN).upc("1234").price(new BigDecimal(13.99)).build();
+
+        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList().get(1));
+
+        MvcResult mvcResult = mockMvc.perform(post(PIZZA_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(pizzaDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2))).andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
 
     @Test
     void getPizzaByIdNotFound() throws Exception {

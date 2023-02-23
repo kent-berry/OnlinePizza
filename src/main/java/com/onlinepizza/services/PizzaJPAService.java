@@ -6,6 +6,7 @@ import com.onlinepizza.repositories.PizzaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +67,31 @@ public class PizzaJPAService implements PizzaService{
     }
 
     @Override
-    public void patchPizzaById(UUID id, PizzaDTO pizza) {
+    public Optional<PizzaDTO> patchPizzaById(UUID id, PizzaDTO pizza) {
+        AtomicReference<Optional<PizzaDTO>> atomicReference = new AtomicReference<>();
 
+        pizzaRepository.findById(id).ifPresentOrElse(foundPizza -> {
+            if (StringUtils.hasText(pizza.getName())){
+                foundPizza.setName(pizza.getName());
+            }
+            if (pizza.getStyle() != null){
+                foundPizza.setStyle(pizza.getStyle());
+            }
+            if (StringUtils.hasText(pizza.getUpc())){
+                foundPizza.setUpc(pizza.getUpc());
+            }
+            if (pizza.getPrice() != null){
+                foundPizza.setPrice(pizza.getPrice());
+            }
+            if (pizza.getQuantityAvailable() != null){
+                foundPizza.setQuantityAvailable(pizza.getQuantityAvailable());
+            }
+            atomicReference.set(Optional.of(pizzaMapper
+                    .pizzaToPizzaDTO(pizzaRepository.save(foundPizza))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 }

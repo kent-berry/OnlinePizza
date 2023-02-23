@@ -17,5 +17,5 @@ public interface PizzaService {
 
     Boolean deletePizzaById(UUID id);
 
-    void patchPizzaById(UUID id, PizzaDTO pizza);
+    Optional<PizzaDTO> patchPizzaById(UUID id, PizzaDTO pizza);
 }
