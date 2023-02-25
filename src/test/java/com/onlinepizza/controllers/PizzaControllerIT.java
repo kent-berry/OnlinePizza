@@ -160,7 +160,7 @@ class PizzaControllerIT {
     void getPizzaList(){
         List<PizzaDTO> dtos = pizzaController.getPizzaList();
 
-        assertThat(dtos.size()).isEqualTo(3);
+        assertThat(dtos.size()).isEqualTo(503);
     }
 
     @Rollback
