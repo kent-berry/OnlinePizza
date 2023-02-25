@@ -2,6 +2,7 @@ package com.onlinepizza.controllers;
 
 import com.onlinepizza.exceptions.NotFoundException;
 import com.onlinepizza.models.PizzaDTO;
+import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.services.PizzaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +65,10 @@ public class PizzaController {
     }
 
     @GetMapping(PIZZA_PATH)
-    public List<PizzaDTO> getPizzaList(){
-        log.debug("test123");
-        return pizzaService.getPizzaList();
+    public List<PizzaDTO> getPizzaList(@RequestParam(required = false) String name,
+                                       @RequestParam(required = false) PizzaStyle style,
+                                       @RequestParam(required = false) Boolean showInventory){
+        return pizzaService.getPizzaList(name, style, showInventory);
     }
 
     @GetMapping(PIZZA_PATH_ID)

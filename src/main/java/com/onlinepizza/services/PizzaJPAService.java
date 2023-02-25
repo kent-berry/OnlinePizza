@@ -1,7 +1,9 @@
 package com.onlinepizza.services;
 
+import com.onlinepizza.entities.Pizza;
 import com.onlinepizza.mappers.PizzaMapper;
 import com.onlinepizza.models.PizzaDTO;
+import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.repositories.PizzaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -28,9 +30,27 @@ public class PizzaJPAService implements PizzaService{
     }
 
     @Override
-    public List<PizzaDTO> getPizzaList() {
-        return pizzaRepository.findAll()
-                .stream()
+    public List<PizzaDTO> getPizzaList(String name, PizzaStyle style, Boolean showInventory) {
+
+        List<Pizza> pizzaList;
+
+        if(StringUtils.hasText(name) && style == null){
+            pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCase("%" + name + "%");
+        } else if(!StringUtils.hasText(name) && style != null){
+            pizzaList = pizzaRepository.findAllByStyle(style);
+        } else if(StringUtils.hasText(name) && style != null){
+            pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCaseAndStyle("%" + name + "%", style);
+        } else {
+            pizzaList = pizzaRepository.findAll();
+        }
+
+        if (showInventory != null && !showInventory){
+            pizzaList.forEach(pizza -> {
+                pizza.setQuantityAvailable(null);
+            });
+        }
+
+        return pizzaList.stream()
                 .map(pizzaMapper::pizzaToPizzaDTO)
                 .collect(Collectors.toList());
     }

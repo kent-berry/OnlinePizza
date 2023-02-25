@@ -1,22 +1,33 @@
 package com.onlinepizza.repositories;
 
+import com.onlinepizza.bootstrap.BootstrapData;
 import com.onlinepizza.entities.Pizza;
 import com.onlinepizza.models.PizzaStyle;
+import com.onlinepizza.services.PizzaCSVServiceImpl;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
+@Import({BootstrapData.class, PizzaCSVServiceImpl.class})
 class PizzaRepositoryTest {
 
     @Autowired
     PizzaRepository pizzaRepository;
+
+    @Test
+    void testGetPizzaListByName(){
+        List<Pizza> pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCase("%Test Data Name 2%");
+        assertThat(pizzaList.size()).isEqualTo(111);
+    }
 
     @Test
     void testSavePizzaNameTooLong() {

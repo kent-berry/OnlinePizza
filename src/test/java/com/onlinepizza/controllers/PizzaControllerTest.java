@@ -77,7 +77,7 @@ class PizzaControllerTest {
     void createPizzaNullName() throws Exception {
         PizzaDTO pizzaDTO = PizzaDTO.builder().style(PizzaStyle.SICILIAN).upc("1234").price(new BigDecimal(13.99)).build();
 
-        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList().get(1));
+        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList(null, null, false).get(1));
 
         MvcResult mvcResult = mockMvc.perform(post(PIZZA_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -100,7 +100,7 @@ class PizzaControllerTest {
 
     @Test
     void getPizzaById() throws Exception {
-        PizzaDTO testPizza = pizzaMapService.getPizzaList().get(0);
+        PizzaDTO testPizza = pizzaMapService.getPizzaList(null, null, false).get(0);
 
         given(pizzaService.getPizzaById(testPizza.getId())).willReturn(Optional.of(testPizza));
 
@@ -115,7 +115,7 @@ class PizzaControllerTest {
     @BeforeEach
     void setUp() {
         pizzaMapService = new PizzaMapService();
-        testPizza = pizzaMapService.getPizzaList().get(0);
+        testPizza = pizzaMapService.getPizzaList(null, null, false).get(0);
     }
 
     @Test
@@ -168,7 +168,7 @@ class PizzaControllerTest {
         testPizza.setId(null);
         testPizza.setVersion(null);
 
-        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList().get(1));
+        given(pizzaService.saveNewPizza(any(PizzaDTO.class))).willReturn(pizzaMapService.getPizzaList(null, null, null).get(1));
 
         mockMvc.perform(post(PIZZA_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -179,7 +179,8 @@ class PizzaControllerTest {
 
     @Test
     void getPizzaList() throws Exception {
-        given(pizzaService.getPizzaList()).willReturn(pizzaMapService.getPizzaList());
+        given(pizzaService.getPizzaList(null, null, null))
+                .willReturn(pizzaMapService.getPizzaList(null, null, null));
 
         mockMvc.perform(get(PIZZA_PATH)
                 .accept(MediaType.APPLICATION_JSON))
