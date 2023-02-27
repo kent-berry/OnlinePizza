@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,8 +25,8 @@ class PizzaRepositoryTest {
 
     @Test
     void testGetPizzaListByName(){
-        List<Pizza> pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCase("%Test Data Name 2%");
-        assertThat(pizzaList.size()).isEqualTo(111);
+        Page<Pizza> pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCase("%Test Data Name 2%", null);
+        assertThat(pizzaList.getContent().size()).isEqualTo(111);
     }
 
     @Test

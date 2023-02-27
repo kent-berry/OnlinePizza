@@ -3,6 +3,8 @@ package com.onlinepizza.services;
 import com.onlinepizza.models.PizzaDTO;
 import com.onlinepizza.models.PizzaStyle;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -74,8 +76,8 @@ public class PizzaMapService implements PizzaService{
     }
 
     @Override
-    public List<PizzaDTO> getPizzaList(String name, PizzaStyle style, Boolean showInventory){
-        return new ArrayList<>(pizzaMap.values());
+    public Page<PizzaDTO> getPizzaList(String name, PizzaStyle style, Boolean showInventory, Integer pageNumber, Integer pageSize){
+        return new PageImpl<>(new ArrayList<>(pizzaMap.values()));
     }
 
     @Override

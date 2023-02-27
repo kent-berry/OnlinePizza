@@ -7,14 +7,15 @@ import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.repositories.PizzaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -24,35 +25,64 @@ public class PizzaJPAService implements PizzaService{
     private final PizzaRepository pizzaRepository;
     private final PizzaMapper pizzaMapper;
 
+    private final static int DEFAULT_PAGE = 0;
+    private final static int DEFAULT_PAGE_SIZE = 10;
+
     @Override
     public Optional<PizzaDTO> getPizzaById(UUID id) {
         return Optional.ofNullable(pizzaMapper.pizzaToPizzaDTO(pizzaRepository.findById(id).orElse(null)));
     }
 
     @Override
-    public List<PizzaDTO> getPizzaList(String name, PizzaStyle style, Boolean showInventory) {
+    public Page<PizzaDTO> getPizzaList(String name, PizzaStyle style, Boolean showInventory,
+                                       Integer pageNumber, Integer pageSize) {
 
-        List<Pizza> pizzaList;
+        PageRequest pageRequest = buildPageRequest(pageNumber, pageSize);
+
+        Page<Pizza> pizzaPage;
 
         if(StringUtils.hasText(name) && style == null){
-            pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCase("%" + name + "%");
+            pizzaPage = pizzaRepository.findAllByNameIsLikeIgnoreCase("%" + name + "%", pageRequest);
         } else if(!StringUtils.hasText(name) && style != null){
-            pizzaList = pizzaRepository.findAllByStyle(style);
+            pizzaPage = pizzaRepository.findAllByStyle(style, pageRequest);
         } else if(StringUtils.hasText(name) && style != null){
-            pizzaList = pizzaRepository.findAllByNameIsLikeIgnoreCaseAndStyle("%" + name + "%", style);
+            pizzaPage = pizzaRepository.findAllByNameIsLikeIgnoreCaseAndStyle("%" + name + "%", style, pageRequest);
         } else {
-            pizzaList = pizzaRepository.findAll();
+            pizzaPage = pizzaRepository.findAll(pageRequest);
         }
 
         if (showInventory != null && !showInventory){
-            pizzaList.forEach(pizza -> {
+            pizzaPage.forEach(pizza -> {
                 pizza.setQuantityAvailable(null);
             });
         }
 
-        return pizzaList.stream()
-                .map(pizzaMapper::pizzaToPizzaDTO)
-                .collect(Collectors.toList());
+        return pizzaPage.map(pizzaMapper::pizzaToPizzaDTO);
+    }
+
+    public PageRequest buildPageRequest(Integer pageNumber, Integer pageSize){
+        int queryPageNumber;
+        int queryPageSize;
+
+        if (pageNumber != null && pageNumber > 0){
+            queryPageNumber = pageNumber - 1;
+        } else {
+            queryPageNumber = DEFAULT_PAGE;
+        }
+
+        if (pageSize == null){
+            queryPageSize = DEFAULT_PAGE_SIZE;
+        } else {
+            if (pageSize > 200){
+                queryPageSize = 200;
+            } else {
+                queryPageSize = pageSize;
+            }
+        }
+
+        Sort sort = Sort.by(Sort.Order.asc("name"));
+
+        return PageRequest.of(queryPageNumber, queryPageSize, sort);
     }
 
     @Override

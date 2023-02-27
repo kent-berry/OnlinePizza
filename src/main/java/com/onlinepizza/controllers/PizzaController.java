@@ -6,13 +6,13 @@ import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.services.PizzaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -65,10 +65,12 @@ public class PizzaController {
     }
 
     @GetMapping(PIZZA_PATH)
-    public List<PizzaDTO> getPizzaList(@RequestParam(required = false) String name,
+    public Page<PizzaDTO> getPizzaList(@RequestParam(required = false) String name,
                                        @RequestParam(required = false) PizzaStyle style,
-                                       @RequestParam(required = false) Boolean showInventory){
-        return pizzaService.getPizzaList(name, style, showInventory);
+                                       @RequestParam(required = false) Boolean showInventory,
+                                       @RequestParam(required = false) Integer pageNumber,
+                                       @RequestParam(required = false) Integer pageSize){
+        return pizzaService.getPizzaList(name, style, showInventory, 1, 10);
     }
 
     @GetMapping(PIZZA_PATH_ID)

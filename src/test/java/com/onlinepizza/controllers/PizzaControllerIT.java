@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,14 +62,27 @@ class PizzaControllerIT {
     }
 
     @Test
+    void listPizzaByStyleAndNameShowInventoryPage2() throws Exception {
+        mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .queryParam("name", "Test Data Name 1")
+                        .queryParam("style", PizzaStyle.CHICAGO.name())
+                        .queryParam("showInventory", "false")
+                        .queryParam("pageNumber", "2")
+                        .queryParam("pageSize", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()", is(11)))
+                .andExpect(jsonPath("$.content[0].quantityAvailable").value(IsNull.nullValue()));
+    }
+
+    @Test
     void listPizzasByStyleAndNameShowInventory() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
                 .queryParam("name", "Test Data Name 1")
                 .queryParam("style", PizzaStyle.CHICAGO.name())
                 .queryParam("showInventory", "false"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(22)))
-                .andExpect(jsonPath("$.[0].quantityAvailable").value(IsNull.nullValue()));
+                .andExpect(jsonPath("$.size()", is(11)))
+                .andExpect(jsonPath("$.content[0].quantityAvailable").value(IsNull.nullValue()));
     }
 
     @Test
@@ -78,7 +91,7 @@ class PizzaControllerIT {
                         .queryParam("name", "Test Data Name 3")
                         .queryParam("style", PizzaStyle.SICILIAN.name()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(22)));
+                .andExpect(jsonPath("$.size()", is(11)));
     }
 
     @Test
@@ -86,7 +99,7 @@ class PizzaControllerIT {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
                         .queryParam("style", PizzaStyle.CHICAGO.name()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(101)));
+                .andExpect(jsonPath("$.size()", is(11)));
     }
 
     @Test
@@ -94,7 +107,7 @@ class PizzaControllerIT {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
                 .queryParam("name", "Test Data Name 1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(111)));
+                .andExpect(jsonPath("$.size()", is(11)));
     }
 
     @Test
@@ -197,9 +210,9 @@ class PizzaControllerIT {
 
     @Test
     void getPizzaList(){
-        List<PizzaDTO> dtos = pizzaController.getPizzaList(null, null, null);
+        Page<PizzaDTO> dtos = pizzaController.getPizzaList(null, null, null, 45, 10);
 
-        assertThat(dtos.size()).isEqualTo(503);
+        assertThat(dtos.getContent().size()).isEqualTo(10);
     }
 
     @Rollback
@@ -207,8 +220,8 @@ class PizzaControllerIT {
     @Test
     void emptyList() {
         pizzaRepository.deleteAll();
-        List<PizzaDTO> dtos = pizzaController.getPizzaList(null, null, null);
+        Page<PizzaDTO> dtos = pizzaController.getPizzaList(null, null, null, 1, 10);
 
-        assertThat(dtos.size()).isEqualTo(0);
+        assertThat(dtos.getContent().size()).isEqualTo(0);
     }
 }
