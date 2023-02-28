@@ -1,5 +1,4 @@
 package com.onlinepizza.entities;
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,41 +7,43 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Timestamp;
 import java.util.UUID;
 
+/**
+ * Created by jt, Spring Framework Guru.
+ */
 @Getter
 @Setter
-@Builder
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-public class Customer {
-
+@AllArgsConstructor
+@Entity
+@Builder
+public class PizzaOrderShipment {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false )
     private UUID id;
-    private String name;
-
-    @Column(length = 255)
-    private String email;
 
     @Version
-    private Integer version;
+    private Long version;
+
+    @OneToOne
+    private PizzaOrder pizzaOrder;
+
+    private String trackingNumber;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime created;
+    private Timestamp created;
 
     @UpdateTimestamp
-    private LocalDateTime lastUpdated;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "customer")
-    private Set<PizzaOrder> pizzaOrders = new HashSet<>();
+    private Timestamp lastUpdated;
 }

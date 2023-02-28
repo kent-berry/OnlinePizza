@@ -8,41 +8,44 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-@Entity
-@AllArgsConstructor
 @NoArgsConstructor
-public class Customer {
+@AllArgsConstructor
+@Entity
+@Builder
+public class PizzaOrderLine {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false )
     private UUID id;
-    private String name;
-
-    @Column(length = 255)
-    private String email;
 
     @Version
-    private Integer version;
+    private Long version;
 
     @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime created;
+    private Timestamp created;
 
     @UpdateTimestamp
-    private LocalDateTime lastUpdated;
+    private Timestamp lastUpdated;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "customer")
-    private Set<PizzaOrder> pizzaOrders = new HashSet<>();
+    public boolean isNew() {
+        return this.id == null;
+    }
+
+    @ManyToOne
+    private PizzaOrder pizzaOrder;
+
+    @ManyToOne
+    private Pizza pizza;
+
+    private Integer orderQuantity = 0;
+    private Integer quantityAllocated = 0;
 }
