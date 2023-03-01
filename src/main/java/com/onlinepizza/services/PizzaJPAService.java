@@ -99,6 +99,7 @@ public class PizzaJPAService implements PizzaService{
             foundPizza.setStyle(pizza.getStyle());
             foundPizza.setUpc(pizza.getUpc());
             foundPizza.setPrice(pizza.getPrice());
+            foundPizza.setQuantityAvailable(pizza.getQuantityAvailable());
             atomicReference.set(Optional.of(pizzaMapper.pizzaToPizzaDTO(pizzaRepository.save(foundPizza))));
         }, () -> {
             atomicReference.set(Optional.empty());

@@ -9,6 +9,7 @@ import com.onlinepizza.models.PizzaStyle;
 import com.onlinepizza.repositories.PizzaRepository;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +29,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.onlinepizza.controllers.PizzaController.PIZZA_PATH_ID;
+import static com.onlinepizza.controllers.PizzaControllerTest.PASSWORD;
+import static com.onlinepizza.controllers.PizzaControllerTest.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -58,12 +62,46 @@ class PizzaControllerIT {
 
     @BeforeEach
     void setUp(){
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .apply(springSecurity()).build();
+    }
+
+    @Disabled // just for demo purposes
+    @Test
+    void testUpdatepizzaBadVersion() throws Exception {
+        Pizza pizza = pizzaRepository.findAll().get(0);
+
+        PizzaDTO pizzaDTO = pizzaMapper.pizzaToPizzaDTO(pizza);
+
+        pizzaDTO.setName("Updated Name");
+
+        MvcResult result = mockMvc.perform(put(pizzaController.PIZZA_PATH_ID, pizza.getId())
+                        .with(httpBasic(USER, PASSWORD))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pizzaDTO)))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        System.out.println(result.getResponse().getContentAsString());
+
+        pizzaDTO.setName("Updated Name 2");
+
+        MvcResult result2 = mockMvc.perform(put(pizzaController.PIZZA_PATH_ID, pizza.getId())
+                        .with(httpBasic(USER, PASSWORD))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pizzaDTO)))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        System.out.println(result2.getResponse().getStatus());
     }
 
     @Test
     void listPizzaByStyleAndNameShowInventoryPage2() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .with(httpBasic(USER, PASSWORD))
                         .queryParam("name", "Test Data Name 1")
                         .queryParam("style", PizzaStyle.CHICAGO.name())
                         .queryParam("showInventory", "false")
@@ -77,6 +115,7 @@ class PizzaControllerIT {
     @Test
     void listPizzasByStyleAndNameShowInventory() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .with(httpBasic(USER, PASSWORD))
                 .queryParam("name", "Test Data Name 1")
                 .queryParam("style", PizzaStyle.CHICAGO.name())
                 .queryParam("showInventory", "false"))
@@ -88,6 +127,7 @@ class PizzaControllerIT {
     @Test
     void listPizzasByStyleAndName() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .with(httpBasic(USER, PASSWORD))
                         .queryParam("name", "Test Data Name 3")
                         .queryParam("style", PizzaStyle.SICILIAN.name()))
                 .andExpect(status().isOk())
@@ -97,6 +137,7 @@ class PizzaControllerIT {
     @Test
     void listPizzasByStyle() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .with(httpBasic(USER, PASSWORD))
                         .queryParam("style", PizzaStyle.CHICAGO.name()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(11)));
@@ -105,6 +146,7 @@ class PizzaControllerIT {
     @Test
     void listPizzasByName() throws Exception {
         mockMvc.perform(get(PizzaController.PIZZA_PATH)
+                        .with(httpBasic(USER, PASSWORD))
                 .queryParam("name", "Test Data Name 1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(11)));
@@ -118,6 +160,7 @@ class PizzaControllerIT {
         pizzaMap.put("name", "New Name2134413798sdfgsgfsfd97g9s8df7g78907979087907097987s9dg87sd9fdgs7dgf9ddsfasdfj23515321235dg79");
 
         MvcResult mvcResult = mockMvc.perform(patch(PIZZA_PATH_ID, testPizza.getId())
+                        .with(httpBasic(USER, PASSWORD))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pizzaMap))
                         .accept(MediaType.APPLICATION_JSON))
